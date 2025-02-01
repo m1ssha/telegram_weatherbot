@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import os
 import requests
 
-load_dotenv()
+load_dotenv(override=True)
 
 API_KEY = os.getenv("OPENWEATHERMAP_API")
 
@@ -80,8 +80,8 @@ def get_weather_forecast(city, hours=6, days=0):
     
 
 def get_city_info(city):
-    from datetime import datetime, UTC
-    from pytz import timezone
+    from datetime import datetime, timezone
+    from pytz import timezone as pytz_timezone
     """Получает информацию о городе: население, код региона, время восхода/заката и т.д."""
     base_url = "http://api.openweathermap.org/data/2.5/forecast"
     params = {
@@ -98,14 +98,14 @@ def get_city_info(city):
 
         timezone_offset = data["city"]["timezone"]
 
-        local_sunrise = datetime.fromtimestamp(data["city"]["sunrise"], UTC) \
-            .replace(tzinfo=timezone("UTC")) \
-            .astimezone(timezone(f"Etc/GMT{int(-timezone_offset / 3600)}")) \
+        local_sunrise = datetime.fromtimestamp(data["city"]["sunrise"], timezone.utc) \
+            .replace(tzinfo=timezone.utc) \
+            .astimezone(pytz_timezone(f"Etc/GMT{int(-timezone_offset / 3600)}")) \
             .strftime('%H:%M:%S')
 
-        local_sunset = datetime.fromtimestamp(data["city"]["sunset"], UTC) \
-            .replace(tzinfo=timezone("UTC")) \
-            .astimezone(timezone(f"Etc/GMT{int(-timezone_offset / 3600)}")) \
+        local_sunset = datetime.fromtimestamp(data["city"]["sunset"], timezone.utc) \
+            .replace(tzinfo=timezone.utc) \
+            .astimezone(pytz_timezone(f"Etc/GMT{int(-timezone_offset / 3600)}")) \
             .strftime('%H:%M:%S')
 
         city_info = {

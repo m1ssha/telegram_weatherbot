@@ -3,7 +3,7 @@ import os
 from aiogram import Bot, Dispatcher
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 TOKEN = os.getenv("TELEGRAM_API_KEY")
 
 logging.basicConfig(
