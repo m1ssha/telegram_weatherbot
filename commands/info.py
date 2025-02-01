@@ -15,7 +15,7 @@ def register_info(dp):
 
             if not re.match(r"^[a-zA-Zа-яА-ЯёЁ\s\-]+$", city):
                 logging.warning(f"Ошибка ввода города: {message.text}")
-                await message.answer(messages.error_city, parse_mode="HTML")
+                await message.answer(messages.error_city_info, parse_mode="HTML")
                 return
 
             info = get_city_info(city)

@@ -32,7 +32,7 @@ def register_forecast(dp: Dispatcher):
             city = args[0]
 
             if not re.match(r"^[a-zA-Zа-яА-ЯёЁ\s\-]+$", city):
-                await message.answer(messages.error_city, parse_mode="HTML")
+                await message.answer(messages.error_city_forecast, parse_mode="HTML")
                 return
 
             hours = 6

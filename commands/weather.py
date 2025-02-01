@@ -36,7 +36,7 @@ def register_weather(dp: Dispatcher):
             city = city.strip()
             if not re.match(r"^[a-zA-Zа-яА-ЯёЁ\s\-]+$", city):
                 logging.warning(f"Ошибка ввода города: {message.text}")
-                await message.reply(messages.error_city,parse_mode="HTML")
+                await message.reply(messages.error_city_weather,parse_mode="HTML")
                 return
 
             await send_weather_info(message, city)
