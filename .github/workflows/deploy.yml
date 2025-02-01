@@ -10,18 +10,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Setup WARP
-        uses: fscarmen/warp-on-actions@v1.0
-        # with:
-        #   stack: ipv6
-        #   mode: client
-
-      - name: 📡 Проверяем подключение по IPv6
-        run: |
-          ping6 -c 4 ${{ secrets.SERVER_IPV6 }} || echo "IPv6 недоступен"
-
       - name: 🔄 Клонируем репозиторий
         uses: actions/checkout@v4
+
+      - name: 🌐 Устанавливаем Cloudflare WARP
+        run: |
+          sudo apt update
+          sudo apt install -y wireguard-tools
+          curl -fsSL https://pkg.cloudflareclient.com/install.sh | sudo bash
+          sudo systemctl start warp-svc
+          warp-cli register
+          warp-cli set-mode proxy
+          warp-cli connect
 
       - name: 🔑 Устанавливаем SSH-ключ
         run: |
@@ -30,9 +30,10 @@ jobs:
           chmod 600 ~/.ssh/github-actions-key
           ssh-keyscan -H [${{ secrets.SERVER_IPV6 }}] >> ~/.ssh/known_hosts
 
-      - name: 🚀 Деплоим на сервер
+      - name: 🚀 Деплоим через WARP
         run: |
-          ssh -i ~/.ssh/github-actions-key ${{ secrets.SERVER_USER }}@[${{ secrets.SERVER_IPV6 }}] << 'EOF'
+          export ALL_PROXY=socks5://127.0.0.1:40000
+          ssh -o ProxyCommand="nc -x 127.0.0.1:40000 %h %p" -i ~/.ssh/github-actions-key ${{ secrets.SERVER_USER }}@[${{ secrets.SERVER_IPV6 }}] << 'EOF'
             cd /root/my-bot/
             git pull origin main
             source venv/bin/activate
