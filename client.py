@@ -5,7 +5,7 @@ from aiogram import Bot, Dispatcher
 from dotenv import load_dotenv
 
 from commands import start, help as help_module, weather, forecast, info, subscribe, mysubscriptions, unsubscribe
-from commands.admin import getsubscriptions
+from commands.admin import getsubscriptions, addsubscriptiontouser
 from aiogram.enums import ParseMode
 
 load_dotenv(override=True)
@@ -31,6 +31,7 @@ subscribe.register_subscribe(dp)
 mysubscriptions.register_mysubscriptions(dp)
 unsubscribe.register_unsubscribe(dp)
 getsubscriptions.register_getsubscriptions(dp)
+addsubscriptiontouser.register_addsubscriptiontouser(dp)
 
 async def main():
     """Основная функция для запуска бота"""
