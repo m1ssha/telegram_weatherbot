@@ -27,11 +27,11 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/github-actions-key
           chmod 600 ~/.ssh/github-actions-key
-          ssh-keyscan -H [${{ secrets.SERVER_IPV6 }}] >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.SERVER_IPV6 }} >> ~/.ssh/known_hosts
 
       - name: 🚀 Деплоим на сервер
         run: |
-          ssh -i ~/.ssh/github-actions-key ${{ secrets.SERVER_USER }}@[${{ secrets.SERVER_IPV6 }}] << 'EOF'
+          ssh -i ~/.ssh/github-actions-key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IPV6 }} << 'EOF'
             cd /root/my-bot/
             git pull origin main
             source venv/bin/activate
