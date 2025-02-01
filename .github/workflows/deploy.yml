@@ -10,18 +10,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Setup WARP
+        uses: fscarmen/warp-on-actions@v1.0
+        with:
+          stack: ipv6
+          mode: proxy  # Включает WARP в режиме прокси
+
+      - name: 📡 Проверяем IPv6 соединение
+        run: |
+          curl -6 ifconfig.co || echo "IPv6 НЕ работает!"
+          ping6 -c 4 ${{ secrets.SERVER_IPV6 }} || echo "IPv6 недоступен"
+
       - name: 🔄 Клонируем репозиторий
         uses: actions/checkout@v4
-
-      - name: 🌐 Устанавливаем Cloudflare WARP
-        run: |
-          sudo apt update
-          sudo apt install -y wireguard-tools
-          curl -fsSL https://pkg.cloudflareclient.com/install.sh | sudo bash
-          sudo systemctl start warp-svc
-          warp-cli register
-          warp-cli set-mode proxy
-          warp-cli connect
 
       - name: 🔑 Устанавливаем SSH-ключ
         run: |
