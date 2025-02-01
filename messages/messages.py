@@ -28,7 +28,7 @@ back_to_city_choice = "⬅️ Вернуться к выбору городов"
 # Сообщение с погодой на данный момент
 def weather_message(weather, city_url_openweather):
     return (
-        f"🏙 <b>Город:</b> {weather['city']}\n"
+        f"Информация о погоде <b>на данный момент</b> в городе <b>{weather['city']}</b>:\n\n"
         f"🌡 <b>Температура:</b> {weather['temp']}°C\n"
         f"🥶 <b>Ощущается как:</b> {weather['feels_like']}°C\n"
         f"💨 <b>Ветер:</b> {weather['windspeed']}\n"
@@ -41,7 +41,7 @@ def weather_message(weather, city_url_openweather):
 # Сообщение с прогнозом погоды
 def forecast_message(city, hours, forecast_data, city_url_openweather):
     text = (
-        f"📅 Прогноз погоды в городе <b>{city}</b> на <b>{hours} часов</b>:\n"
+        f"📅 Прогноз погоды в городе <b>{city}</b>:\n"
         f"🔗 <a href='{city_url_openweather}'>Проверить в OpenWeatherMap</a>\n\n"
     )
     for entry in forecast_data:
