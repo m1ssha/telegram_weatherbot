@@ -1,0 +1,31 @@
+name: Deploy Telegram Bot
+
+on:
+  push:
+    branches:
+      - main  # Запуск деплоя при пуше в main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔄 Клонируем репозиторий
+        uses: actions/checkout@v4
+
+      - name: 🔑 Устанавливаем SSH-ключ
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/github-actions-key
+          chmod 600 ~/.ssh/github-actions-key
+          ssh-keyscan -H your_server_ip >> ~/.ssh/known_hosts
+
+      - name: 🚀 Деплоим на сервер
+        run: |
+          ssh -i ~/.ssh/github-actions-key root@your_server_ip << 'EOF'
+            cd /root/my-bot/
+            git pull origin main
+            source venv/bin/activate
+            pip install -r requirements.txt
+            systemctl restart my-bot
+          EOF
