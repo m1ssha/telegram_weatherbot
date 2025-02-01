@@ -15,6 +15,14 @@ jobs:
         with:
           mode: client
 
+      - name: 🛠️ Настраиваем WARP для работы с IPv6
+        run: |
+          warp-cli registration
+          warp-cli set-mode proxy
+          warp-cli connect
+          echo "Текущий IPv6-адрес:"
+          curl -6 ifconfig.co || echo "IPv6 недоступен"
+
       - name: 📡 Проверяем подключение по IPv6
         run: |
           ping6 -c 4 ${{ secrets.SERVER_IPV6 }} || echo "IPv6 недоступен"
