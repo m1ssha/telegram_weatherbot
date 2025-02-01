@@ -14,7 +14,7 @@ jobs:
         uses: fscarmen/warp-on-actions@v1.0
         with:
           stack: ipv6
-          mode: proxy  # Включает WARP в режиме прокси
+          mode: client
 
       - name: 📡 Проверяем IPv6 соединение
         run: |
