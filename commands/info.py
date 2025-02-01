@@ -5,6 +5,7 @@ from aiogram.filters import Command
 from aiogram.types import Message
 from weather_api import get_city_info
 
+from messages import messages
 
 def register_info(dp):
     @dp.message(Command("info"))
@@ -14,18 +15,12 @@ def register_info(dp):
 
             if not re.match(r"^[a-zA-Zа-яА-ЯёЁ\s\-]+$", city):
                 logging.warning(f"Ошибка ввода города: {message.text}")
-                await message.answer(
-                    "🚫 Ошибка: название города должно содержать только буквы и пробелы. Пример: <code>/weather Москва</code>",
-                    parse_mode="HTML"
-                )
+                await message.answer(messages.error_city, parse_mode="HTML")
                 return
 
             info = get_city_info(city)
             if not info:
-                await message.answer(
-                    "❌ Город не найден. Проверьте правильность написания.",
-                    parse_mode="HTML"
-                )
+                await message.answer(messages.error_find_city, parse_mode="HTML")
                 return
 
             city_id = info["id"]
