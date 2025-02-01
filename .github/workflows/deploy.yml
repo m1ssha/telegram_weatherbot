@@ -10,6 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Setup WARP
+        uses: fscarmen/warp-on-actions@v1.0
+        with:
+          stack: ipv6
+
       - name: 📡 Проверяем подключение по IPv6
         run: |
           ping6 -c 4 ${{ secrets.SERVER_IPV6 }} || echo "IPv6 недоступен"
@@ -22,11 +27,11 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/github-actions-key
           chmod 600 ~/.ssh/github-actions-key
-          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H [${{ secrets.SERVER_IPV6 }}] >> ~/.ssh/known_hosts
 
       - name: 🚀 Деплоим на сервер
         run: |
-          ssh -i ~/.ssh/github-actions-key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+          ssh -i ~/.ssh/github-actions-key ${{ secrets.SERVER_USER }}@[${{ secrets.SERVER_IPV6 }}] << 'EOF'
             cd /root/my-bot/
             git pull origin main
             source venv/bin/activate
