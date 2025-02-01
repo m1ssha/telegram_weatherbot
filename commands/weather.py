@@ -20,7 +20,7 @@ def get_city_keyboard():
             [InlineKeyboardButton(text="Калининград", callback_data="weather_Kaliningrad")],
             [InlineKeyboardButton(text="Калуга", callback_data="weather_Kaluga")],
             [InlineKeyboardButton(text="Иваново", callback_data="weather_Ivanovo")],
-            [InlineKeyboardButton(text="Пермь", callback_data="weather_Perm")]
+            [InlineKeyboardButton(text="Пермь", callback_data="weather_Perm")],
             [InlineKeyboardButton(text="Ташкент", callback_data="weather_Tashkent")],
             [InlineKeyboardButton(text="Выбрать другой город", callback_data="weather_custom")],
         ]
