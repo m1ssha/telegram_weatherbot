@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Setup WARP
@@ -15,9 +15,8 @@ jobs:
         with:
           mode: client
 
-      - name: 📡 Проверяем IPv6 соединение
+      - name: 📡 Проверяем подключение по IPv6
         run: |
-          curl -6 ifconfig.co || echo "IPv6 НЕ работает!"
           ping6 -c 4 ${{ secrets.SERVER_IPV6 }} || echo "IPv6 недоступен"
 
       - name: 🔄 Клонируем репозиторий
@@ -30,10 +29,9 @@ jobs:
           chmod 600 ~/.ssh/github-actions-key
           ssh-keyscan -H [${{ secrets.SERVER_IPV6 }}] >> ~/.ssh/known_hosts
 
-      - name: 🚀 Деплоим через WARP
+      - name: 🚀 Деплоим на сервер
         run: |
-          export ALL_PROXY=socks5://127.0.0.1:40000
-          ssh -o ProxyCommand="nc -x 127.0.0.1:40000 %h %p" -i ~/.ssh/github-actions-key ${{ secrets.SERVER_USER }}@[${{ secrets.SERVER_IPV6 }}] << 'EOF'
+          ssh -i ~/.ssh/github-actions-key ${{ secrets.SERVER_USER }}@[${{ secrets.SERVER_IPV6 }}] << 'EOF'
             cd /root/my-bot/
             git pull origin main
             source venv/bin/activate
