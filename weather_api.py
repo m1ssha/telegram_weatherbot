@@ -62,7 +62,7 @@ def get_weather_forecast(city, hours=6, days=0):
 
         for i in range(min(steps, len(forecasts))):
             forecast = forecasts[i]
-            dt = datetime.fromtimestamp(forecast["dt"]).strftime("%Y-%m-%d %H:%M")
+            dt = datetime.fromtimestamp(forecast["dt"]).strftime("%d.%m.%Y %H:%M")
             weather_info = {
                 "дата и время": dt,
                 "температура": forecast["main"]["temp"],
