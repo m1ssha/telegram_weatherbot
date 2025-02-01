@@ -7,22 +7,16 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
-      - name: 🔄 Устанавливаем WARP
-        run: |
-          sudo apt update
-          sudo apt install -y curl
-          curl -fsSL https://pkg.cloudflareclient.com/install.sh | sudo bash
-          sudo apt install -y cloudflare-warp
-          sudo systemctl start warp-svc
-          sudo warp-cli registration
-          sudo warp-cli set-mode proxy
-          sudo warp-cli connect
-          echo "✅ WARP подключен"
+      - name: Setup WARP
+        uses: fscarmen/warp-on-actions@v1.0
+        with:
+          stack: ipv6
+          mode: client
 
-      - name: 📡 Проверяем IPv6
+      - name: 📡 Проверяем IPv6 соединение
         run: |
           curl -6 ifconfig.co || echo "IPv6 НЕ работает!"
           ping6 -c 4 ${{ secrets.SERVER_IPV6 }} || echo "IPv6 недоступен"
