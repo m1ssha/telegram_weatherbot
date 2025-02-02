@@ -79,10 +79,9 @@ def get_weather_forecast(city, hours=6, days=0):
         return False
     
 
-def get_dailyforecast(city, days=1):
-    
-    from datetime import datetime
-    """Получает прогноз погоды на данный день"""
+def get_dailyforecast(city):
+    import datetime
+    """Получает прогноз погоды только на текущий день"""
     
     base_url = "https://api.openweathermap.org/data/2.5/forecast"
     params = {
@@ -98,27 +97,26 @@ def get_dailyforecast(city, days=1):
         data = response.json()
         forecasts = data["list"]
         city_id = data['city']['id']
-        
-        steps = (days * 24) // 3
 
+        today = datetime.datetime.now().date()
         weather_forecast = []
 
+        for forecast in forecasts:
+            dt_object = datetime.datetime.fromtimestamp(forecast["dt"])
+            
+            if dt_object.date() == today:
+                weather_info = {
+                    "дата и время": dt_object.strftime("%d.%m.%Y %H:%M"),
+                    "температура": forecast["main"]["temp"],
+                    "ощущается как": forecast["main"]["feels_like"],
+                    "влажность": forecast["main"]["humidity"],
+                    "давление": forecast["main"]["pressure"],
+                    "ветер": f"{forecast['wind']['speed']} м/с",
+                    "погода": forecast["weather"][0]["description"]
+                }
+                weather_forecast.append(weather_info)
 
-        for i in range(min(steps, len(forecasts))):
-            forecast = forecasts[i]
-            dt = datetime.fromtimestamp(forecast["dt"]).strftime("%d.%m.%Y %H:%M")
-            weather_info = {
-                "дата и время": dt,
-                "температура": forecast["main"]["temp"],
-                "ощущается как": forecast["main"]["feels_like"],
-                "влажность": forecast["main"]["humidity"],
-                "давление": forecast["main"]["pressure"],
-                "ветер": f"{forecast['wind']['speed']} м/с",
-                "погода": forecast["weather"][0]["description"]
-            }
-            weather_forecast.append(weather_info)
-
-        return weather_forecast, city_id
+        return weather_forecast, city_id if weather_forecast else (None, city_id)
     else:
         return False
     

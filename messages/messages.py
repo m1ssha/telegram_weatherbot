@@ -69,7 +69,7 @@ def forecast_message(city, hours, forecast_data, city_url_openweather):
         )
     return text
 
-def daily_forecast_message(city, hours, forecast_data, city_url_openweather):
+def daily_forecast_message(city, forecast_data, city_url_openweather):
     text = (
         f"📅 Прогноз погоды в городе <b>{city}</b>:\n"
         f"🔗 <a href='{city_url_openweather}'>Проверить в OpenWeatherMap</a>\n\n"
