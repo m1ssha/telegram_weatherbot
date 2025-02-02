@@ -64,6 +64,23 @@ def forecast_message(city, hours, forecast_data, city_url_openweather):
             f"🌫 Давление: {entry['давление']} мм рт. ст.\n"
             f"💨 Ветер: {entry['ветер']}\n"
             f"🌦 Погода: {entry['погода'].capitalize()}\n\n"
-            f"Отменить подписку: /unsubscribe"
         )
+    return text
+
+def daily_forecast_message(city, hours, forecast_data, city_url_openweather):
+    text = (
+        f"📅 Прогноз погоды в городе <b>{city}</b>:\n"
+        f"🔗 <a href='{city_url_openweather}'>Проверить в OpenWeatherMap</a>\n\n"
+    )
+    for entry in forecast_data:
+        text += (
+            f"<b>{entry['дата и время']}</b>\n"
+            f"🌡 Температура: {entry['температура']}°C\n"
+            f"🥶 Ощущается как: {entry['ощущается как']}°C\n"
+            f"💧 Влажность: {entry['влажность']}%\n"
+            f"🌫 Давление: {entry['давление']} мм рт. ст.\n"
+            f"💨 Ветер: {entry['ветер']}\n"
+            f"🌦 Погода: {entry['погода'].capitalize()}\n\n"
+        )
+    text += f"<b>/unsubscribe</b> - отписаться от рассылки"
     return text

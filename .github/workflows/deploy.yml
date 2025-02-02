@@ -10,18 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Setup WARP
-        uses: fscarmen/warp-on-actions@v1.3
-        with:
-          mode: client
-
-      - name: 📡 Проверяем подключение по IPv6
-        run: |
-          ping6 -c 4 ${{ secrets.SERVER_IPV6 }} || echo "IPv6 недоступен"
-
-      - name: 🔄 Клонируем репозиторий
-        uses: actions/checkout@v4
-
       - name: 🔑 Устанавливаем SSH-ключ
         run: |
           mkdir -p ~/.ssh

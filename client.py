@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 from commands import start, help as help_module, weather, forecast, info, subscribe, mysubscriptions, unsubscribe
 from commands.admin import getsubscriptions, addsubscriptiontouser
-from aiogram.enums import ParseMode
+# from commands.keyboard.user_keyboard import user_keyboard
 
 load_dotenv(override=True)
 TOKEN = os.getenv("TELEGRAM_API_KEY")
@@ -22,6 +22,7 @@ logging.basicConfig(
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
+
 start.register_start(dp)
 help_module.register_help(dp)
 weather.register_weather(dp)
@@ -32,6 +33,7 @@ mysubscriptions.register_mysubscriptions(dp)
 unsubscribe.register_unsubscribe(dp)
 getsubscriptions.register_getsubscriptions(dp)
 addsubscriptiontouser.register_addsubscriptiontouser(dp)
+
 
 async def main():
     """Основная функция для запуска бота"""

@@ -79,6 +79,50 @@ def get_weather_forecast(city, hours=6, days=0):
         return False
     
 
+def get_dailyforecast(city, days=1):
+    
+    from datetime import datetime
+    """Получает прогноз погоды на данный день"""
+    
+    base_url = "https://api.openweathermap.org/data/2.5/forecast"
+    params = {
+        "q": city,
+        "appid": API_KEY,
+        "units": "metric",  # Температура в градусах Цельсия
+        "lang": "ru"        # Описание погоды на русском
+    }
+
+    response = requests.get(base_url, params=params)
+
+    if response.status_code == 200:
+        data = response.json()
+        forecasts = data["list"]
+        city_id = data['city']['id']
+        
+        steps = (days * 24) // 3
+
+        weather_forecast = []
+
+
+        for i in range(min(steps, len(forecasts))):
+            forecast = forecasts[i]
+            dt = datetime.fromtimestamp(forecast["dt"]).strftime("%d.%m.%Y %H:%M")
+            weather_info = {
+                "дата и время": dt,
+                "температура": forecast["main"]["temp"],
+                "ощущается как": forecast["main"]["feels_like"],
+                "влажность": forecast["main"]["humidity"],
+                "давление": forecast["main"]["pressure"],
+                "ветер": f"{forecast['wind']['speed']} м/с",
+                "погода": forecast["weather"][0]["description"]
+            }
+            weather_forecast.append(weather_info)
+
+        return weather_forecast, city_id
+    else:
+        return False
+    
+
 def get_city_info(city):
     from datetime import datetime, timezone
     from pytz import timezone as pytz_timezone

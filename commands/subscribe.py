@@ -10,7 +10,7 @@ from aiogram import Dispatcher
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import aiosqlite
 
-from weather_api import get_weather_forecast
+from weather_api import get_dailyforecast
 from messages import messages
 
 DB_FILE = "subscriptions.db"
@@ -83,10 +83,10 @@ async def send_daily_forecast(bot: Bot):
 
     for user_id, city, notify_time in subscriptions:
         if notify_time == now:
-            forecast_data, city_id = get_weather_forecast(city, hours=0, days=1)
+            forecast_data, city_id = get_dailyforecast(city, days=1)
             if forecast_data:
                 city_url_openweather = f"https://openweathermap.org/city/{city_id}"
-                forecast_text = messages.forecast_message(city, 15, forecast_data, city_url_openweather)
+                forecast_text = messages.daily_forecast_message(city, 15, forecast_data, city_url_openweather)
 
                 try:
                     await bot.send_message(user_id, forecast_text, parse_mode="HTML", disable_web_page_preview=True)
