@@ -16,6 +16,7 @@ from messages import messages
 DB_FILE = "subscriptions.db"
 scheduler = AsyncIOScheduler()
 
+LIMIT = 10
 
 async def init_db():
     async with aiosqlite.connect(DB_FILE) as db:
@@ -51,7 +52,7 @@ async def add_subscription(user_id: int, city: str, notify_time: str):
     """Добавляет подписку в базу данных, если их меньше 10."""
     current_count = await count_user_subscriptions(user_id)
     
-    if current_count >= 10:
+    if current_count >= LIMIT:
         return False
 
     try:
@@ -111,9 +112,11 @@ def register_subscribe(dp: Dispatcher):
             return
 
         city, notify_time = args
-        if not re.match(r"^[a-zA-Zа-яА-ЯёЁ\s\-]+$", city):
-            await message.answer(messages.error_city_forecast, parse_mode="HTML")
+        if not re.match(r"^[a-zA-Zа-яА-ЯёЁ\s\-]{2,50}$", city):
+            await message.answer(messages.error_city_subscribe, parse_mode="HTML")
             return
+        
+        city = city.replace("'", "").replace('"', "").replace(";", "").replace("--", "")
 
         try:
             datetime.strptime(notify_time, "%H:%M")
@@ -123,7 +126,7 @@ def register_subscribe(dp: Dispatcher):
 
         success = await add_subscription(message.from_user.id, city, notify_time)
         if not success:
-            await message.answer("Возникла ошибка при добавлении подписки. Возможно, подписка на даннов время уже существует")
+            await message.answer(f"{messages.error_subscribe_not_success} ({LIMIT})")
             return
 
         await message.answer(messages.success_subscribe.format(city=city, time=notify_time), parse_mode="HTML")
