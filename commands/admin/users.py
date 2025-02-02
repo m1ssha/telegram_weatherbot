@@ -20,6 +20,10 @@ def register_users(dp: Dispatcher):
             )
             return
         
+        if message.chat.type != "private":
+            await message.answer("🚫 Эта команда доступна только в личных сообщениях с ботом.")
+            return
+        
         users = await get_all_users()
         if not users:
             await message.answer("⚠️ В базе данных пока нет пользователей.")
