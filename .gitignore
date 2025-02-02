@@ -4,3 +4,4 @@ __pycache__
 bot.log
 test.py
 subscriptions.db
+bot_data.db

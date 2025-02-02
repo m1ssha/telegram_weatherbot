@@ -4,8 +4,10 @@ import asyncio
 from aiogram import Bot, Dispatcher
 from dotenv import load_dotenv
 
-from commands import start, help as help_module, weather, forecast, info, subscribe, mysubscriptions, unsubscribe, contact
-from commands.admin import getsubscriptions, addsubscriptiontouser, admin, answer
+from commands import start, help as help_module, weather, forecast, info, subscribe, mysubscriptions, unsubscribe, contact, chat_logger, user_logger
+from commands.admin import getsubscriptions, addsubscriptiontouser, admin, answer, chats, users
+
+import database
 
 load_dotenv(override=True)
 TOKEN = os.getenv("TELEGRAM_API_KEY")
@@ -37,9 +39,14 @@ getsubscriptions.register_getsubscriptions(dp)
 addsubscriptiontouser.register_addsubscriptiontouser(dp)
 admin.register_admin(dp)
 answer.register_answer(dp)
+chats.register_chats(dp)
+users.register_users(dp)
 
 async def main():
     """Основная функция для запуска бота"""
+    await database.init_db()
+    chat_logger.register_chat_logger(dp)
+    user_logger.register_user_logger(dp)
     await subscribe.init_db()
     subscribe.schedule_daily_forecasts(bot)
     await dp.start_polling(bot)
