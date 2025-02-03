@@ -6,9 +6,12 @@ from aiogram import types, Bot
 from aiogram.filters.command import Command
 from aiogram.types import Message
 from aiogram import Dispatcher
+from aiogram.types import FSInputFile, BufferedInputFile
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import aiosqlite
+import matplotlib.pyplot as plt
+import io
 
 from weather_api import get_dailyforecast
 from messages import messages
@@ -78,7 +81,7 @@ async def get_subscriptions():
 
 
 async def send_daily_forecast(bot: Bot):
-    """Отправляет прогноз погоды подписчикам."""
+    """Отправляет прогноз погоды подписчикам с графиком температуры."""
     subscriptions = await get_subscriptions()
     now = datetime.now().strftime("%H:%M")
 
@@ -89,10 +92,30 @@ async def send_daily_forecast(bot: Bot):
                 city_url_openweather = f"https://openweathermap.org/city/{city_id}"
                 forecast_text = messages.daily_forecast_message(city, forecast_data, city_url_openweather)
 
+                times = [datetime.strptime(entry["дата и время"], "%d.%m.%Y %H:%M").strftime("%H:%M") for entry in forecast_data]
+                temperatures = [entry["температура"] for entry in forecast_data]
+
+                plt.figure(figsize=(10, 5))
+                plt.plot(times, temperatures, marker='o', linestyle='-', color='b', label="Температура")
+                plt.xlabel("Время")
+                plt.ylabel("Температура (°C)")
+                plt.title(f"Температура в городе {city}")
+                plt.xticks(rotation=0)
+                plt.grid(True)
+                plt.legend()
+
+                img_bytes = io.BytesIO()
+                plt.savefig(img_bytes, format="png")
+                img_bytes.seek(0)
+                plt.close()
+                photo = BufferedInputFile(img_bytes.getvalue(), filename="weather_chart.png")
+
                 try:
-                    await bot.send_message(user_id, forecast_text, parse_mode="HTML", disable_web_page_preview=True)
+                    await bot.send_photo(user_id, photo=photo, caption=forecast_text, parse_mode="HTML")
+
                 except Exception as e:
                     logging.error(f"Ошибка отправки сообщения пользователю {user_id}: {e}")
+
 
 
 def register_subscribe(dp: Dispatcher):
