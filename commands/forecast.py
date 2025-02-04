@@ -6,9 +6,14 @@ from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, C
 import io
 from aiogram.types import BufferedInputFile
 from aiogram import Dispatcher
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 
 from weather_api import get_weather_forecast
 from messages import messages
+
+class ForecastState(StatesGroup):
+    waiting_for_city = State()
 
 def get_city_keyboard():
     """Создаёт клавиатуру с городами для прогноза погоды."""
@@ -37,7 +42,7 @@ def register_forecast(dp: Dispatcher):
                 await message.answer(messages.error_city_forecast, parse_mode="HTML")
                 return
 
-            hours = 6
+            hours = 12
             days = 0
 
             if len(args) > 1:
@@ -54,12 +59,11 @@ def register_forecast(dp: Dispatcher):
             await send_forecast_info(message, city, hours, days)
 
         else:
-            await message.answer(messages.warning_forecast_input, reply_markup=get_city_keyboard(), parse_mode = "HTML")
+            await message.answer(messages.warning_forecast_input, reply_markup=get_city_keyboard(), parse_mode="HTML")
 
     @dp.callback_query(lambda c: c.data.startswith("forecast_"))
-    async def city_callback_handler(callback: CallbackQuery):
-        from buttons.citymap import city_map
-        """Обработчик кнопок выбора города для прогноза."""
+    async def city_callback_handler(callback: CallbackQuery, state: FSMContext):
+        from buttons.citymap import city_map_forecast as city_map
 
         city_key = callback.data
         if city_key in city_map:
@@ -67,19 +71,35 @@ def register_forecast(dp: Dispatcher):
 
             await callback.message.delete()
 
-            await send_forecast_info(callback.message, city, 6, 0, show_back_button=True)
-            await callback.answer()
-        elif city_key == "forecast_custom":
-            await callback.message.edit_text(messages.info_city_forecast, parse_mode="HTML")
+            await send_forecast_info(callback.message, city, 12, 0, show_back_button=True)
             await callback.answer()
 
+        elif city_key == "forecast_custom":
+            await callback.message.delete()
+
+            await callback.message.answer("Введите название города:")
+            
+            await state.set_state(ForecastState.waiting_for_city)
+            await callback.answer()
+
+    @dp.message(ForecastState.waiting_for_city)
+    async def process_city_input(message: Message, state: FSMContext):
+        """Обработчик ввода города после выбора 'Выбрать другой город'."""
+
+        city = message.text.strip()
+
+        if not re.match(r"^[a-zA-Zа-яА-ЯёЁ\s\-]+$", city):
+            await message.answer("Некорректное название города. Попробуйте снова:")
+            return
+        
+        await state.clear()
+        await send_forecast_info(message, city, 6, 0, show_back_button=True)
 
     @dp.callback_query(lambda c: c.data == "back_to_forecast_cities")
     async def back_to_forecast_cities_handler(callback: CallbackQuery):
-        """Обработчик кнопки "Вернуться к выбору городов"."""
+        """Обработчик кнопки "Вернуться к выбору городов".""" 
         try:
             await callback.message.delete()
-
             await callback.message.answer(
                 messages.warning_choose_city,
                 reply_markup=get_city_keyboard(),
@@ -92,7 +112,7 @@ def register_forecast(dp: Dispatcher):
                 reply_markup=get_city_keyboard(),
                 parse_mode="HTML"
             )
-        
+
         await callback.answer()
 
 async def send_forecast_info(message: Message, city: str, hours: int, days: int, show_back_button=False):
@@ -100,13 +120,18 @@ async def send_forecast_info(message: Message, city: str, hours: int, days: int,
     import matplotlib.pyplot as plt
     forecast_data, city_id = get_weather_forecast(city, hours=hours, days=days)
 
+    if not forecast_data:
+        logging.error(f"Город не найден: {city}")
+        await message.reply(messages.error_find_city, parse_mode="HTML")
+        return
+
     times = [datetime.strptime(entry["дата и время"], "%d.%m.%Y %H:%M").strftime("%H:%M") for entry in forecast_data]
     temperatures = [entry["температура"] for entry in forecast_data]
 
     start_time = times[0] if times else "?"
     end_time = times[-1] if times else "?"
     date = datetime.strptime(forecast_data[0]["дата и время"], "%d.%m.%Y %H:%M").strftime("%d.%m.%Y")
-    
+
     plt.figure(figsize=(10, 5))
     plt.plot(times, temperatures, marker='o')
     plt.xlabel("Время")
@@ -120,11 +145,6 @@ async def send_forecast_info(message: Message, city: str, hours: int, days: int,
     img_bytes.seek(0)
     plt.close()
     photo = BufferedInputFile(img_bytes.getvalue(), filename="weather_chart.png")
-
-    if not forecast_data:
-        logging.error(f"Город не найден: {city}")
-        await message.reply(messages.error_find_city, parse_mode="HTML")
-        return
 
     city_url_openweather = f"https://openweathermap.org/city/{city_id}"
     forecast_text = messages.forecast_message(city, hours, forecast_data, city_url_openweather)
@@ -143,5 +163,5 @@ async def send_forecast_info(message: Message, city: str, hours: int, days: int,
         else:
             await message.answer_photo(photo)
             await message.answer(forecast_text, parse_mode="HTML", disable_web_page_preview=True, reply_markup=keyboard)
-    except:
-        logging.error(f"Ошибка при отправке /forecast")
+    except Exception as e:
+        logging.error(f"Ошибка при отправке /forecast: {e}")
