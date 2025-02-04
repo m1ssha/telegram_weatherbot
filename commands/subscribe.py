@@ -120,7 +120,6 @@ async def send_daily_forecast(bot: Bot):
                     logging.error(f"Ошибка отправки сообщения пользователю {user_id}: {e}")
 
 
-
 def register_subscribe(dp: Dispatcher):
     @dp.message(Command("subscribe"))
     async def subscribe_handler(message: Message, command):
@@ -156,7 +155,6 @@ def register_subscribe(dp: Dispatcher):
             return
 
         await message.answer(messages.success_subscribe.format(city=city, time=normalized_time), parse_mode="HTML")
-
 
 
 def schedule_daily_forecasts(bot: Bot):

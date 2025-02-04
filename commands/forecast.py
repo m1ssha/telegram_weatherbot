@@ -135,7 +135,7 @@ async def send_forecast_info(message: Message, city: str, hours: int, days: int,
         )
 
     try:
-        await message.answer_photo(photo, reply_markup=keyboard)
         await message.answer(forecast_text, parse_mode="HTML", disable_web_page_preview=True, reply_markup=keyboard)
+        await message.answer_photo(photo)
     except:
         await message.answer(forecast_text, parse_mode="HTML", disable_web_page_preview=True, reply_markup=keyboard)
