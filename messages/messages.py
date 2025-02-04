@@ -42,49 +42,70 @@ back_to_city_choice = "⬅️ Вернуться к выбору городов"
 
 # Сообщение с погодой на данный момент
 def weather_message(weather, city_url_openweather):
+    from messages.functions import get_feels_like_emoji
+    from messages.functions import get_weather_emoji
+
+    weather_emoji = get_weather_emoji(weather['description'].lower())
+    feels_like_emoji = get_feels_like_emoji(weather['feels_like'])
+
     return (
         f"Информация о погоде <b>на данный момент</b> в городе <b>{weather['city']}</b>:\n\n"
         f"🌡 <b>Температура:</b> {weather['temp']}°C\n"
-        f"🥶 <b>Ощущается как:</b> {weather['feels_like']}°C\n"
+        f"{feels_like_emoji} <b>Ощущается как:</b> {weather['feels_like']}°C\n"
         f"💨 <b>Ветер:</b> {weather['windspeed']}\n"
         f"🌫 <b>Давление:</b> {weather['pressure']} мм рт. ст.\n"
         f"💧 <b>Влажность:</b> {weather['humidity']}%\n"
-        f"🌦 <b>Погода:</b> {weather['description'].capitalize()}\n\n"
+        f"{weather_emoji} <b>Погода:</b> {weather['description'].capitalize()}\n\n"
         f"🔗 <a href='{city_url_openweather}'>Проверить в OpenWeatherMap</a>"
     )
 
+
 # Сообщение с прогнозом погоды
 def forecast_message(city, hours, forecast_data, city_url_openweather):
+    from messages.functions import get_feels_like_emoji
+    from messages.functions import get_weather_emoji
+
     text = (
         f"📅 Прогноз погоды в городе <b>{city}</b>:\n"
         f"🔗 <a href='{city_url_openweather}'>Проверить в OpenWeatherMap</a>\n\n"
     )
     for entry in forecast_data:
+        weather_emoji = get_weather_emoji(entry['погода'])
+        feels_like_emoji = get_feels_like_emoji(entry['ощущается как'])
+
         text += (
             f"<b>{entry['дата и время']}</b>\n"
             f"🌡 Температура: {entry['температура']}°C\n"
-            f"🥶 Ощущается как: {entry['ощущается как']}°C\n"
+            f"{feels_like_emoji} Ощущается как: {entry['ощущается как']}°C\n"
             f"💧 Влажность: {entry['влажность']}%\n"
             f"🌫 Давление: {entry['давление']} мм рт. ст.\n"
             f"💨 Ветер: {entry['ветер']}\n"
-            f"🌦 Погода: {entry['погода'].capitalize()}\n\n"
+            f"{weather_emoji} Погода: {entry['погода'].capitalize()}\n\n"
         )
     return text
 
+
+# Сообщение с ежедневным прогнозом
 def daily_forecast_message(city, forecast_data, city_url_openweather):
+    from messages.functions import get_feels_like_emoji
+    from messages.functions import get_weather_emoji
+    
     text = (
         f"📅 Прогноз погоды в городе <b>{city}</b>:\n"
         f"🔗 <a href='{city_url_openweather}'>Проверить в OpenWeatherMap</a>\n\n"
     )
     for entry in forecast_data:
+        weather_emoji = get_weather_emoji(entry['погода'])
+        feels_like_emoji = get_feels_like_emoji(entry['ощущается как'])
+
         text += (
             f"<b>{entry['дата и время']}</b>\n"
             f"🌡 Температура: {entry['температура']}°C\n"
-            f"🥶 Ощущается как: {entry['ощущается как']}°C\n"
+            f"{feels_like_emoji} Ощущается как: {entry['ощущается как']}°C\n"
             f"💧 Влажность: {entry['влажность']}%\n"
             f"🌫 Давление: {entry['давление']} мм рт. ст.\n"
             f"💨 Ветер: {entry['ветер']}\n"
-            f"🌦 Погода: {entry['погода'].capitalize()}\n\n"
+            f"{weather_emoji} Погода: {entry['погода'].capitalize()}\n\n"
         )
     text += f"<b>/unsubscribe</b> - отписаться от рассылки"
     return text
