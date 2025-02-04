@@ -142,17 +142,18 @@ def register_subscribe(dp: Dispatcher):
         city = city.replace("'", "").replace('"', "").replace(";", "").replace("--", "")
 
         try:
-            datetime.strptime(notify_time, "%H:%M")
+            normalized_time = datetime.strptime(notify_time, "%H:%M").strftime("%H:%M")
         except ValueError:
             await message.answer(messages.error_subscribe_time, parse_mode="HTML")
             return
 
-        success = await add_subscription(message.from_user.id, city, notify_time)
+        success = await add_subscription(message.from_user.id, city, normalized_time)
         if not success:
             await message.answer(f"{messages.error_subscribe_not_success} ({LIMIT})")
             return
 
-        await message.answer(messages.success_subscribe.format(city=city, time=notify_time), parse_mode="HTML")
+        await message.answer(messages.success_subscribe.format(city=city, time=normalized_time), parse_mode="HTML")
+
 
 
 def schedule_daily_forecasts(bot: Bot):
