@@ -25,6 +25,7 @@ def register_admin(dp: Dispatcher):
         
         admin_message = (f"<b>Команды администратора:</b>"
                          f"\n\n<b>/addsubscriptiontouser</b> - добавить пользователю подписку на погоду по его ID в Telegram"
+                         f"\n<b>/removesubscriptiontouser</b> - удалить подписку у пользователя по его ID в Telegram"
                          f"\n<b>/getsubscriptions</b> - посмотреть все подписки"
                          f"\n<b>/chats</b> - список чатов, в которых состоит бот"
                          f"\n<b>/users</b> - список людей, использующих бота")

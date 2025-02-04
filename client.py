@@ -4,8 +4,9 @@ import asyncio
 from aiogram import Bot, Dispatcher
 from dotenv import load_dotenv
 
-from commands import start, help as help_module, weather, forecast, info, subscribe, mysubscriptions, unsubscribe, contact, chat_logger, user_logger
-from commands.admin import getsubscriptions, addsubscriptiontouser, admin, answer, chats, users
+from commands import start, help as help_module, weather, forecast, info, subscribe, mysubscriptions, unsubscribe, contact
+from functions import chat_logger, user_logger
+from commands.admin import getsubscriptions, addsubscriptiontouser, admin, answer, chats, users, removesubscription
 
 import database
 
@@ -37,6 +38,7 @@ unsubscribe.register_unsubscribe(dp)
 
 getsubscriptions.register_getsubscriptions(dp)
 addsubscriptiontouser.register_addsubscriptiontouser(dp)
+removesubscription.register_removesubscriptiontouser(dp)
 admin.register_admin(dp)
 answer.register_answer(dp)
 chats.register_chats(dp)

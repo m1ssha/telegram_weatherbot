@@ -25,12 +25,13 @@ def register_users(dp: Dispatcher):
             return
         
         users = await get_all_users()
+        users_count = len(users)
         if not users:
             await message.answer("⚠️ В базе данных пока нет пользователей.")
             return
         
-        user_list = "\n".join([f"🆔 {user_id} - @{username} ({full_name})" for user_id, username, full_name in users])
-        response = f"<b>📋 Список пользователей:</b>\n\n{user_list}"
+        user_list = "\n".join([f"🆔 <code>{user_id}</code> - @{username} ({full_name})" for user_id, username, full_name in users])
+        response = f"<b>📋 Список пользователей ({users_count}):</b>\n\n{user_list}"
 
         await message.answer(response, parse_mode="HTML")
         logging.info(f"Админ {message.from_user.full_name} ({message.from_user.id}) запросил список пользователей.")

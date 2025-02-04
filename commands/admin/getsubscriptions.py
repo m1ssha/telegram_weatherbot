@@ -33,13 +33,14 @@ def register_getsubscriptions(dp: Dispatcher):
             return
 
         subscriptions = await get_all_subscriptions()
+        subscriptions_count = len(subscriptions)
 
         if not subscriptions:
             await message.answer("📭 В системе пока нет подписок.")
             return
 
-        response = "<b>Все активные подписки:</b>\n---\n"
+        response = f"<b>Все активные подписки ({subscriptions_count}):</b>\n---\n"
         for user_id, city, notify_time in subscriptions:
-            response += f"👤 <b>User ID:</b> {user_id}\n📍 <b>Город:</b> {city}\n⏰ <b>Время:</b> {notify_time}\n---\n"
+            response += f"👤 <b>User ID:</b> <code>{user_id}</code>\n📍 <b>Город:</b> {city}\n⏰ <b>Время:</b> {notify_time}\n---\n"
 
         await message.answer(response, parse_mode="HTML")
