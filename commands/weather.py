@@ -48,19 +48,12 @@ def register_weather(dp: Dispatcher):
 
     @dp.callback_query(lambda c: c.data.startswith("weather_"))
     async def city_callback_handler(callback: CallbackQuery):
+        from buttons.citymap import city_map
         """Обработчик кнопок выбора города."""
-        city_map = {
-            "weather_Moscow": "Москва",
-            "weather_SPB": "Санкт-Петербург",
-            "weather_Tashkent": "Ташкент",
-            "weather_Kaliningrad": "Калининград",
-            "weather_Kaluga": "Калуга",
-            "weather_Ivanovo": "Иваново",
-            "weather_Perm": "Пермь",
-        }
         city_key = callback.data
         if city_key in city_map:
             city = city_map[city_key]
+            await callback.message.delete()
             await send_weather_info(callback.message, city, show_back_button=True)
             await callback.answer()
         elif city_key == "weather_custom":
@@ -71,6 +64,7 @@ def register_weather(dp: Dispatcher):
     async def back_to_cities_handler(callback: CallbackQuery):
         """Обработчик кнопки "Вернуться к выбору городов"."""
         try:
+            await callback.message.delete()
             await callback.message.edit_text(
                 messages.warning_choose_city,
                 reply_markup=get_city_keyboard()
@@ -103,6 +97,6 @@ async def send_weather_info(message: Message, city: str, show_back_button=False)
         )
 
     try:
-        await message.edit_text(answer, parse_mode="HTML", disable_web_page_preview=True, reply_markup=keyboard)
+        await message.answer(answer, parse_mode="HTML", disable_web_page_preview=True, reply_markup=keyboard)
     except:
         await message.answer(answer, parse_mode="HTML", disable_web_page_preview=True, reply_markup=keyboard)

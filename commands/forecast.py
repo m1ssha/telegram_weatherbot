@@ -58,38 +58,41 @@ def register_forecast(dp: Dispatcher):
 
     @dp.callback_query(lambda c: c.data.startswith("forecast_"))
     async def city_callback_handler(callback: CallbackQuery):
+        from buttons.citymap import city_map
         """Обработчик кнопок выбора города для прогноза."""
-        city_map = {
-            "forecast_Moscow": "Москва",
-            "forecast_SPB": "Санкт-Петербург",
-            "forecast_Tashkent": "Ташкент",
-            "forecast_Kaliningrad": "Калининград",
-            "forecast_Kaluga": "Калуга",
-            "forecast_Ivanovo": "Иваново",
-            "forecast_Perm": "Пермь",
-        }
+
         city_key = callback.data
         if city_key in city_map:
             city = city_map[city_key]
+
+            await callback.message.delete()
+
             await send_forecast_info(callback.message, city, 6, 0, show_back_button=True)
             await callback.answer()
         elif city_key == "forecast_custom":
             await callback.message.edit_text(messages.info_city_forecast, parse_mode="HTML")
             await callback.answer()
 
+
     @dp.callback_query(lambda c: c.data == "back_to_forecast_cities")
     async def back_to_forecast_cities_handler(callback: CallbackQuery):
-        """Обработчик кнопки "Вернуться к выбору городов" для прогноза."""
+        """Обработчик кнопки "Вернуться к выбору городов"."""
         try:
-            await callback.message.edit_text(
-                messages.warning_choose_city,
-                reply_markup=get_city_keyboard()
-            )
-        except Exception:
+            await callback.message.delete()
+
             await callback.message.answer(
                 messages.warning_choose_city,
-                reply_markup=get_city_keyboard()
+                reply_markup=get_city_keyboard(),
+                parse_mode="HTML"
             )
+        except Exception as e:
+            logging.error(f"Ошибка при возврате к выбору городов: {e}")
+            await callback.message.answer(
+                messages.warning_choose_city,
+                reply_markup=get_city_keyboard(),
+                parse_mode="HTML"
+            )
+        
         await callback.answer()
 
 async def send_forecast_info(message: Message, city: str, hours: int, days: int, show_back_button=False):
@@ -135,7 +138,10 @@ async def send_forecast_info(message: Message, city: str, hours: int, days: int,
         )
 
     try:
-        await message.answer(forecast_text, parse_mode="HTML", disable_web_page_preview=True, reply_markup=keyboard)
-        await message.answer_photo(photo)
+        if len(forecast_text) < 1024:
+            await message.answer_photo(photo, caption=forecast_text, parse_mode="HTML", reply_markup=keyboard)
+        else:
+            await message.answer_photo(photo)
+            await message.answer(forecast_text, parse_mode="HTML", disable_web_page_preview=True, reply_markup=keyboard)
     except:
-        await message.answer(forecast_text, parse_mode="HTML", disable_web_page_preview=True, reply_markup=keyboard)
+        logging.error(f"Ошибка при отправке /forecast")
