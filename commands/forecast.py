@@ -9,7 +9,7 @@ from aiogram import Dispatcher
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 
-from weather_api import get_weather_forecast
+from API.weather import get_weather_forecast
 from messages import messages
 
 class ForecastState(StatesGroup):

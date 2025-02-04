@@ -3,7 +3,7 @@ import logging
 from aiogram import types
 from aiogram.filters import Command
 from aiogram.types import Message
-from weather_api import get_city_info
+from API.weather import get_city_info
 
 from messages import messages
 

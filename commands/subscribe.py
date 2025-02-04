@@ -13,7 +13,7 @@ import aiosqlite
 import matplotlib.pyplot as plt
 import io
 
-from weather_api import get_dailyforecast
+from API.weather import get_dailyforecast
 from messages import messages
 
 DB_FILE = "subscriptions.db"
