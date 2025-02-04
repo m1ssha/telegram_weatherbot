@@ -95,14 +95,17 @@ async def send_daily_forecast(bot: Bot):
                 times = [datetime.strptime(entry["дата и время"], "%d.%m.%Y %H:%M").strftime("%H:%M") for entry in forecast_data]
                 temperatures = [entry["температура"] for entry in forecast_data]
 
+                start_time = times[0] if times else "?"
+                end_time = times[-1] if times else "?"
+                date = datetime.strptime(forecast_data[0]["дата и время"], "%d.%m.%Y %H:%M").strftime("%d.%m.%Y")
+
                 plt.figure(figsize=(10, 5))
-                plt.plot(times, temperatures, marker='o', linestyle='-', color='b', label="Температура")
+                plt.plot(times, temperatures, marker='o')
                 plt.xlabel("Время")
                 plt.ylabel("Температура (°C)")
-                plt.title(f"Температура в городе {city}")
+                plt.title(f"Температура в городе {city} с {start_time} по {end_time} на {date}")
                 plt.xticks(rotation=0)
                 plt.grid(True)
-                plt.legend()
 
                 img_bytes = io.BytesIO()
                 plt.savefig(img_bytes, format="png")

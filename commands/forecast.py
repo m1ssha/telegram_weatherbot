@@ -3,6 +3,8 @@ import logging
 from aiogram import types
 from aiogram.filters.command import Command
 from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+import io
+from aiogram.types import BufferedInputFile
 from aiogram import Dispatcher
 
 from weather_api import get_weather_forecast
@@ -91,8 +93,30 @@ def register_forecast(dp: Dispatcher):
         await callback.answer()
 
 async def send_forecast_info(message: Message, city: str, hours: int, days: int, show_back_button=False):
-    """Функция для отправки прогноза погоды."""
+    from datetime import datetime
+    import matplotlib.pyplot as plt
     forecast_data, city_id = get_weather_forecast(city, hours=hours, days=days)
+
+    times = [datetime.strptime(entry["дата и время"], "%d.%m.%Y %H:%M").strftime("%H:%M") for entry in forecast_data]
+    temperatures = [entry["температура"] for entry in forecast_data]
+
+    start_time = times[0] if times else "?"
+    end_time = times[-1] if times else "?"
+    date = datetime.strptime(forecast_data[0]["дата и время"], "%d.%m.%Y %H:%M").strftime("%d.%m.%Y")
+    
+    plt.figure(figsize=(10, 5))
+    plt.plot(times, temperatures, marker='o')
+    plt.xlabel("Время")
+    plt.ylabel("Температура (°C)")
+    plt.title(f"Температура в городе {city} с {start_time} по {end_time} на {date}")
+    plt.xticks(rotation=0)
+    plt.grid(True)
+
+    img_bytes = io.BytesIO()
+    plt.savefig(img_bytes, format="png")
+    img_bytes.seek(0)
+    plt.close()
+    photo = BufferedInputFile(img_bytes.getvalue(), filename="weather_chart.png")
 
     if not forecast_data:
         logging.error(f"Город не найден: {city}")
@@ -111,6 +135,7 @@ async def send_forecast_info(message: Message, city: str, hours: int, days: int,
         )
 
     try:
-        await message.edit_text(forecast_text, parse_mode="HTML", disable_web_page_preview=True, reply_markup=keyboard)
+        await message.answer_photo(photo, reply_markup=keyboard)
+        await message.answer(forecast_text, parse_mode="HTML", disable_web_page_preview=True, reply_markup=keyboard)
     except:
         await message.answer(forecast_text, parse_mode="HTML", disable_web_page_preview=True, reply_markup=keyboard)
