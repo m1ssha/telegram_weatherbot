@@ -5,6 +5,7 @@ import importlib
 import pkgutil
 from aiogram import Bot, Dispatcher
 from dotenv import load_dotenv
+import commands.subscribe as subscribe
 
 import database
 from functions import chat_logger, user_logger
@@ -56,6 +57,8 @@ async def main():
     await database.init_db()
     chat_logger.register_chat_logger(dp)
     user_logger.register_user_logger(dp)
+    await subscribe.init_db()
+    subscribe.schedule_daily_forecasts(bot)
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
