@@ -114,7 +114,8 @@ async def send_daily_forecast(bot: Bot):
                 photo = BufferedInputFile(img_bytes.getvalue(), filename="weather_chart.png")
 
                 try:
-                    await bot.send_photo(user_id, photo=photo, caption=forecast_text, parse_mode="HTML")
+                    await bot.send_photo(user_id, photo=photo, parse_mode="HTML", disable_notification=True)
+                    await bot.send_message(user_id, forecast_text, parse_mode="HTML", disable_web_page_preview=True)
 
                 except Exception as e:
                     logging.error(f"Ошибка отправки сообщения пользователю {user_id}: {e}")
