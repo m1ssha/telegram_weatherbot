@@ -81,6 +81,7 @@ async def get_subscriptions():
 
 
 async def send_daily_forecast(bot: Bot):
+    import matplotlib.dates as mdates
     """Отправляет прогноз погоды подписчикам с графиком температуры."""
     subscriptions = await get_subscriptions()
     now = datetime.now().strftime("%H:%M")
@@ -92,23 +93,39 @@ async def send_daily_forecast(bot: Bot):
                 city_url_openweather = f"https://openweathermap.org/city/{city_id}"
                 forecast_text = messages.daily_forecast_message(city, forecast_data, city_url_openweather)
 
-                times = [datetime.strptime(entry["дата и время"], "%d.%m.%Y %H:%M").strftime("%H:%M") for entry in forecast_data]
+                times = [datetime.strptime(entry["дата и время"], "%d.%m.%Y %H:%M") for entry in forecast_data]
                 temperatures = [entry["температура"] for entry in forecast_data]
 
-                start_time = times[0] if times else "?"
-                end_time = times[-1] if times else "?"
-                date = datetime.strptime(forecast_data[0]["дата и время"], "%d.%m.%Y %H:%M").strftime("%d.%m.%Y")
+                start_time = times[0].strftime("%H:%M") if times else "?"
+                end_time = times[-1].strftime("%H:%M") if times else "?"
+                date = times[0].strftime("%d.%m.%Y") if times else "?"
 
-                plt.figure(figsize=(10, 5))
-                plt.plot(times, temperatures, marker='o')
-                plt.xlabel("Время")
-                plt.ylabel("Температура (°C)")
-                plt.title(f"Температура в городе {city} с {start_time} по {end_time} на {date}")
-                plt.xticks(rotation=0)
-                plt.grid(True)
+                bg_color = "#242424"
+                line_color = "#00c8ff"
+                text_color = "white"
+                grid_color = "gray"
+
+                plt.figure(figsize=(12, 6), facecolor=bg_color)
+                ax = plt.gca()
+                ax.set_facecolor(bg_color)
+
+                plt.plot(times, temperatures, linestyle="-", color=line_color, marker="o", markersize=5, label="Температура (°C)")
+
+                ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
+                plt.xticks(rotation=45, fontsize=10, color=text_color)
+                plt.yticks(fontsize=10, color=text_color)
+
+                plt.xlabel("Время", fontsize=12, fontweight="bold", color=text_color)
+                plt.ylabel("Температура (°C)", fontsize=12, fontweight="bold", color=text_color)
+                plt.title(f"Температура в городе {city} с {start_time} по {end_time} на {date}", fontsize=14, fontweight="bold", color=text_color)
+
+                plt.grid(True, linestyle="--", alpha=0.5, color=grid_color)
+                ax.yaxis.grid(True, linestyle="--", alpha=0.5, color=grid_color)
+
+                plt.legend(fontsize=10, facecolor="#222222", edgecolor="white", labelcolor="white")
 
                 img_bytes = io.BytesIO()
-                plt.savefig(img_bytes, format="png")
+                plt.savefig(img_bytes, format="png", bbox_inches="tight", dpi=200, facecolor=bg_color, pad_inches=0.5)
                 img_bytes.seek(0)
                 plt.close()
                 photo = BufferedInputFile(img_bytes.getvalue(), filename="weather_chart.png")
@@ -119,6 +136,7 @@ async def send_daily_forecast(bot: Bot):
 
                 except Exception as e:
                     logging.error(f"Ошибка отправки сообщения пользователю {user_id}: {e}")
+
 
 
 def register_subscribe(dp: Dispatcher):
